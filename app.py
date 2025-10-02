@@ -7,7 +7,8 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Aplicativo de Posts e Glicemia")
-        self.geometry("800x600")
+        self.state("zoomed") # Abre a janela em tela cheia, mantendo os botões de controle
+        self.configure(bg="#F0F2F5") # Cor de fundo geral da aplicação
 
         # Container para os frames
         container = tk.Frame(self)
