@@ -56,7 +56,7 @@ class GlycemiaScreen(tk.Frame):
         # --- Abstract Shapes (no main frame, but on the GlycemiaScreen itself) ---
         # These shapes are outside the white content_frame to mimic the original image's layout
         canvas = tk.Canvas(self, width=300, height=200, bg="#F0F2F5", highlightthickness=0)
-        canvas.place(relx=1.0, rely=0, anchor="ne", x=-50, y=50) # Ajustado para ficar mais próximo do canto superior direito
+        canvas.place(relx=1.0, rely=0, anchor="ne", x=0, y=0) # Reposiciona a forma geométrica para o canto superior direito, sem sobrepor cobrir elementos
         canvas.create_oval(100, -100, 400, 200, fill="#1a73e8", outline="")
         canvas.create_oval(180, -50, 450, 150, fill="#1967d2", outline="")
 
@@ -67,10 +67,11 @@ class GlycemiaScreen(tk.Frame):
         row_frame.pack(fill="x", pady=10)
 
         label = tk.Label(row_frame, text=label_text, font=("Arial", 14), fg="#1a73e8", bg="white")
-        label.pack(side="left", anchor="w", expand=True)
+        label.pack(side="left", anchor="w", padx=(0, 20))
 
         slider_container_frame = tk.Frame(row_frame, bg="white")
-        slider_container_frame.pack(side="left", fill="x", expand=True, padx=20)
+        slider_container_frame.pack(side="left", fill="x", expand=True)
+
 
         value_label = tk.Label(slider_container_frame, text=str(initial_value), font=("Arial", 12), fg="#5f6368", bg="white")
         value_label.pack(anchor="center")

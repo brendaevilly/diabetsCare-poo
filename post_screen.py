@@ -73,4 +73,3 @@ class PostScreen(tk.Frame):
         self.post_text.insert("1.0", "No que está pensando?")
         self.post_text.config(fg="grey")
         self.controller.show_frame("FeedScreen")
-

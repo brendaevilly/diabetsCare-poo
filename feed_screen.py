@@ -24,25 +24,36 @@ class FeedScreen(tk.Frame):
         self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
         self.scrollable_frame = tk.Frame(self.canvas, bg="#F0F2F5")
 
-        self.scrollable_frame.bind(
-            "<Configure>",
-            lambda e: self.canvas.configure(
-                scrollregion=self.canvas.bbox("all")
-            )
-        )
+        # Criar a janela dentro do canvas para o frame rolável
+        self.canvas_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw", width=self.winfo_width())
+        # Configurar o canvas para usar a barra de rolagem
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
+        # Empacotar o canvas e a barra de rolagem
         self.canvas.pack(side="left", fill="both", expand=True, padx=(20,0))
         self.scrollbar.pack(side="right", fill="y", padx=(0,20))
 
-        # Bind para ajustar a largura do canvas quando a janela for redimensionada
-        self.bind("<Configure>", self._on_frame_configure)
+        # Bind para ajustar a largura da janela interna do canvas quando o canvas for redimensionado
+        self.canvas.bind("<Configure>", self._on_canvas_resize)
+        # Bind para atualizar o scrollregion quando o conteúdo do frame rolável mudar
+        # Este bind é crucial para que a barra de rolagem saiba o tamanho total do conteúdo
+        self.scrollable_frame.bind("<Configure>", self._on_frame_configure)
+
+        # Inicializa o feed (pode estar vazio no início)
+        # A chamada inicial aqui garante que o feed seja populado se houver posts ao iniciar
+        # e que o scrollregion seja calculado uma primeira vez.
+        self.update_feed()
+
+    def _on_canvas_resize(self, event):
+        # Ajusta a largura da janela interna do canvas para preencher o canvas
+        # Isso é importante para que o scrollable_frame se expanda horizontalmente
+        self.canvas.itemconfig(self.canvas_window, width=event.width)
 
     def _on_frame_configure(self, event):
-        # Ajusta a largura da janela interna do canvas para preencher o espaço disponível
-        self.canvas.itemconfig(self.canvas.winfo_children()[0], width=event.width - self.scrollbar.winfo_width() - 40)
+        # Atualiza o scrollregion do canvas para o tamanho total do scrollable_frame
+        # Isso permite que a barra de rolagem funcione corretamente
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def update_feed(self, posts=None):
         if posts is None:
@@ -63,6 +74,10 @@ class FeedScreen(tk.Frame):
             user_label.pack(anchor="w", pady=(0, 5))
 
             content_label = tk.Label(post_card, text=post["content"], font=("Arial", 12), bg="white", 
-                                    wraplength=self.winfo_width() - 100, justify="left", anchor="w")
+                                    wraplength=500, justify="left", anchor="w") # Valor fixo para wraplength
             content_label.pack(fill="x", expand=True)
-
+        
+        # Força a atualização das dimensões dos widgets para que o scrollregion seja calculado corretamente
+        self.scrollable_frame.update_idletasks()
+        # Garante que o scrollregion seja atualizado após todos os posts serem adicionados
+        self.canvas.config(scrollregion=self.canvas.bbox("all"))
