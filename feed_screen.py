@@ -5,22 +5,24 @@ class FeedScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
-        self.configure(bg="white")
+        self.configure(bg="#F0F2F5") # Cor de fundo para o feed
 
-        # Frame para os botões de navegação
-        nav_frame = tk.Frame(self, bg="white")
-        nav_frame.pack(pady=10)
+        # Frame para os botões de navegação no topo
+        nav_frame = tk.Frame(self, bg="#F0F2F5")
+        nav_frame.pack(pady=10, fill="x")
 
-        post_button = tk.Button(nav_frame, text="Criar Post", command=lambda: controller.show_frame("PostScreen"))
-        post_button.pack(side="left", padx=5)
+        post_button = tk.Button(nav_frame, text="Criar Post", command=lambda: controller.show_frame("PostScreen"),
+                                bg="#4285F4", fg="white", font=("Arial", 10, "bold"), relief="flat", padx=10, pady=5)
+        post_button.pack(side="left", padx=10)
 
-        glycemia_button = tk.Button(nav_frame, text="Registrar Glicemia", command=lambda: controller.show_frame("GlycemiaScreen"))
-        glycemia_button.pack(side="left", padx=5)
+        glycemia_button = tk.Button(nav_frame, text="Registrar Glicemia", command=lambda: controller.show_frame("GlycemiaScreen"),
+                                    bg="#34A853", fg="white", font=("Arial", 10, "bold"), relief="flat", padx=10, pady=5)
+        glycemia_button.pack(side="left", padx=10)
 
         # Canvas e Scrollbar para a lista de posts
-        self.canvas = tk.Canvas(self, bg="white", highlightthickness=0)
+        self.canvas = tk.Canvas(self, bg="#F0F2F5", highlightthickness=0)
         self.scrollbar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
-        self.scrollable_frame = tk.Frame(self.canvas, bg="white")
+        self.scrollable_frame = tk.Frame(self.canvas, bg="#F0F2F5")
 
         self.scrollable_frame.bind(
             "<Configure>",
@@ -29,11 +31,18 @@ class FeedScreen(tk.Frame):
             )
         )
 
-        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw", width=self.winfo_width())
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
 
-        self.canvas.pack(side="left", fill="both", expand=True, padx=(10,0))
-        self.scrollbar.pack(side="right", fill="y", padx=(0,10))
+        self.canvas.pack(side="left", fill="both", expand=True, padx=(20,0))
+        self.scrollbar.pack(side="right", fill="y", padx=(0,20))
+
+        # Bind para ajustar a largura do canvas quando a janela for redimensionada
+        self.bind("<Configure>", self._on_frame_configure)
+
+    def _on_frame_configure(self, event):
+        # Ajusta a largura da janela interna do canvas para preencher o espaço disponível
+        self.canvas.itemconfig(self.canvas.winfo_children()[0], width=event.width - self.scrollbar.winfo_width() - 40)
 
     def update_feed(self, posts=None):
         if posts is None:
@@ -45,14 +54,15 @@ class FeedScreen(tk.Frame):
 
         # Adiciona os posts ao feed
         for post in posts:
-            post_card = tk.Frame(self.scrollable_frame, bg="white", bd=1, relief="solid", highlightbackground="#CCCCCC", highlightthickness=1)
-            post_card.pack(fill="x", pady=5, padx=10, ipadx=5, ipady=5)
+            # Simula um card com bordas arredondadas e sombra
+            post_card = tk.Frame(self.scrollable_frame, bg="white", bd=0, relief="flat", 
+                                 highlightbackground="#CCCCCC", highlightthickness=1)
+            post_card.pack(fill="x", pady=10, padx=20, ipadx=10, ipady=10)
 
-            user_label = tk.Label(post_card, text=post["user"], font=("Arial", 12, "bold"), bg="white", fg="#1a73e8")
-            user_label.pack(anchor="w")
+            user_label = tk.Label(post_card, text=post["user"], font=("Arial", 14, "bold"), bg="white", fg="#1a73e8")
+            user_label.pack(anchor="w", pady=(0, 5))
 
-            content_frame = tk.Frame(post_card, bg="white") # Frame para o conteúdo
-            content_frame.pack(fill="x", expand=True, pady=(5,0))
+            content_label = tk.Label(post_card, text=post["content"], font=("Arial", 12), bg="white", 
+                                    wraplength=self.winfo_width() - 100, justify="left", anchor="w")
+            content_label.pack(fill="x", expand=True)
 
-            content_label = tk.Label(content_frame, text=post["content"], font=("Arial", 11), bg="white", wraplength=self.winfo_width() - 60, justify="left")
-            content_label.pack(anchor="w")

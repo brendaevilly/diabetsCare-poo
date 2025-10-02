@@ -5,21 +5,25 @@ class GlycemiaScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
-        self.configure(bg="#FFFFFF")
+        self.configure(bg="#F0F2F5") # Cor de fundo geral da tela
+
+        # Frame para o conteúdo principal (branco, centralizado)
+        content_frame = tk.Frame(self, bg="white")
+        content_frame.pack(expand=True, fill="both", padx=50, pady=50)
 
         # --- Header --- #
-        header_frame = tk.Frame(self, bg="#FFFFFF")
-        header_frame.pack(pady=(20, 10), padx=50, anchor="w")
+        header_frame = tk.Frame(content_frame, bg="white")
+        header_frame.pack(pady=(20, 10), padx=30, anchor="w", fill="x")
 
-        title_label = tk.Label(header_frame, text="Registre sua glicemia", font=("Roboto", 32, "bold"), fg="#1a73e8", bg="#FFFFFF")
+        title_label = tk.Label(header_frame, text="Registre sua glicemia", font=("Roboto", 32, "bold"), fg="#1a73e8", bg="white")
         title_label.pack(anchor="w")
 
-        subtitle_label = tk.Label(header_frame, text="Insira seus dados de hoje", font=("Roboto", 16), fg="#1a73e8", bg="#FFFFFF")
+        subtitle_label = tk.Label(header_frame, text="Insira seus dados de hoje", font=("Roboto", 16), fg="#1a73e8", bg="white")
         subtitle_label.pack(anchor="w")
 
         # --- Sliders Frame --- #
-        sliders_frame = tk.Frame(self, bg="#FFFFFF")
-        sliders_frame.pack(fill="x", padx=50, pady=10)
+        sliders_frame = tk.Frame(content_frame, bg="white")
+        sliders_frame.pack(fill="x", padx=30, pady=20)
 
         self.slider_data = []
 
@@ -29,10 +33,10 @@ class GlycemiaScreen(tk.Frame):
         self._create_slider_row(sliders_frame, "Glicemia antes de dormir", 145, 40, 200, "dormir")
 
         # --- Text Area --- #
-        text_frame = tk.Frame(self, bg="#FFFFFF")
-        text_frame.pack(fill="x", padx=50, pady=10, anchor="w")
+        text_frame = tk.Frame(content_frame, bg="white")
+        text_frame.pack(fill="x", padx=30, pady=10, anchor="w")
 
-        how_are_you_label = tk.Label(text_frame, text="Como você está?", font=("Arial", 14), fg="#1a73e8", bg="#FFFFFF")
+        how_are_you_label = tk.Label(text_frame, text="Como você está?", font=("Arial", 14), fg="#1a73e8", bg="white")
         how_are_you_label.pack(anchor="w", pady=(0, 5))
 
         self.text_area = tk.Text(text_frame, height=4, font=("Arial", 12), bg="#f0f0f0", relief="solid", bd=0, highlightthickness=1, highlightbackground="#e0e0e0", wrap="word", padx=10, pady=10)
@@ -40,7 +44,7 @@ class GlycemiaScreen(tk.Frame):
         self.text_area.pack(fill="x", expand=True)
 
         # --- Buttons Frame --- #
-        button_frame = tk.Frame(self, bg="#FFFFFF")
+        button_frame = tk.Frame(content_frame, bg="white")
         button_frame.pack(pady=20)
 
         save_button = tk.Button(button_frame, text="Salvar", font=("Arial", 12, "bold"), bg="#1a73e8", fg="white", padx=30, pady=10, relief="flat", bd=0, highlightthickness=0, command=self._save_glycemia_data)
@@ -49,23 +53,30 @@ class GlycemiaScreen(tk.Frame):
         back_button = tk.Button(button_frame, text="Voltar para Feed", font=("Arial", 12), command=lambda: controller.show_frame("FeedScreen"))
         back_button.pack(side="left", padx=10)
 
+        # --- Abstract Shapes (no main frame, but on the GlycemiaScreen itself) ---
+        # These shapes are outside the white content_frame to mimic the original image's layout
+        canvas = tk.Canvas(self, width=300, height=200, bg="#F0F2F5", highlightthickness=0)
+        canvas.place(relx=1.0, rely=0, anchor="ne", x=-50, y=50) # Ajustado para ficar mais próximo do canto superior direito
+        canvas.create_oval(100, -100, 400, 200, fill="#1a73e8", outline="")
+        canvas.create_oval(180, -50, 450, 150, fill="#1967d2", outline="")
+
         self._update_all_status()
 
     def _create_slider_row(self, parent, label_text, initial_value, min_val, max_val, type_glicemia):
-        row_frame = tk.Frame(parent, bg="#FFFFFF")
+        row_frame = tk.Frame(parent, bg="white")
         row_frame.pack(fill="x", pady=10)
 
-        label = tk.Label(row_frame, text=label_text, font=("Arial", 14), fg="#1a73e8", bg="#FFFFFF")
+        label = tk.Label(row_frame, text=label_text, font=("Arial", 14), fg="#1a73e8", bg="white")
         label.pack(side="left", anchor="w", expand=True)
 
-        slider_container_frame = tk.Frame(row_frame, bg="#FFFFFF")
+        slider_container_frame = tk.Frame(row_frame, bg="white")
         slider_container_frame.pack(side="left", fill="x", expand=True, padx=20)
 
-        value_label = tk.Label(slider_container_frame, text=str(initial_value), font=("Arial", 12), fg="#5f6368", bg="#FFFFFF")
+        value_label = tk.Label(slider_container_frame, text=str(initial_value), font=("Arial", 12), fg="#5f6368", bg="white")
         value_label.pack(anchor="center")
 
         style = ttk.Style()
-        style.configure("TScale", background="#FFFFFF", troughcolor="#d3d3d3")
+        style.configure("TScale", background="white", troughcolor="#d3d3d3")
 
         slider = ttk.Scale(slider_container_frame, from_=min_val, to=max_val, orient="horizontal", style="TScale", command=lambda val, vl=value_label, tg=type_glicemia: self._update_value(val, vl, tg))
         slider.set(initial_value)

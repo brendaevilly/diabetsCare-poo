@@ -7,7 +7,11 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Aplicativo de Posts e Glicemia")
-        self.state("zoomed") # Abre a janela em tela cheia, mantendo os botões de controle
+        # Obtém as dimensões da tela
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        # Define a geometria da janela para preencher a tela
+        self.geometry(f"{screen_width}x{screen_height}")
         self.configure(bg="#F0F2F5") # Cor de fundo geral da aplicação
 
         # Container para os frames
@@ -42,3 +46,4 @@ class App(tk.Tk):
 if __name__ == "__main__":
     app = App()
     app.mainloop()
+
