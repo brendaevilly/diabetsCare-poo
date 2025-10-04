@@ -74,10 +74,10 @@ container_right = tk.Frame(frame_right, bg="#1E90FF")
 container_right.place(relx=0.5, rely=0.5, anchor="center")
 
 # Carregar imagens decorativas
-bg1 = ImageTk.PhotoImage(Image.open("Vector1.png").resize((180,180)))
-bg2 = ImageTk.PhotoImage(Image.open("Vector2.png").resize((180,180)))
-bg3 = ImageTk.PhotoImage(Image.open("Vector3.png").resize((180,180)))
-icon = ImageTk.PhotoImage(Image.open("report (1) 2.png").resize((300,300)))
+bg1 = ImageTk.PhotoImage(Image.open("signup_screen/Vector1.png").resize((180,180)))
+bg2 = ImageTk.PhotoImage(Image.open("signup_screen/Vector2.png").resize((180,180)))
+bg3 = ImageTk.PhotoImage(Image.open("signup_screen/Vector3.png").resize((180,180)))
+icon = ImageTk.PhotoImage(Image.open("signup_screen/report (1) 2.png").resize((300,300)))
 
 lbl_bg1 = tk.Label(frame_right, image=bg1, bg="#1E90FF", border=0)
 lbl_bg1.place(x=300, y=10)
