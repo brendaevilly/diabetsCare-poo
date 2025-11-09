@@ -1,5 +1,13 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
+import sys
+import os
+
+# Adiciona o diretório raiz ao path para imports
+root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, root_dir)
+
+from frontend.utils.threading_helper import AsyncOperation
 
 class GlycemiaScreen(tk.Frame):
     def __init__(self, parent, controller):
@@ -122,16 +130,28 @@ class GlycemiaScreen(tk.Frame):
             self._update_status(data["type"], value)
 
     def _save_glycemia_data(self):
+        """Inicia o processo de salvamento de dados de glicemia"""
         data_to_save = {
             "jejum": int(self.slider_data[0]["slider"].get()),
             "pos_prandial": int(self.slider_data[1]["slider"].get()),
             "dormir": int(self.slider_data[2]["slider"].get()),
             "observacoes": self.text_area.get("1.0", "end-1c").strip()
         }
-        try:
-            self.controller.DiabetsCareService.adicionarGlicemia(data_to_save)
-        except Exception as e:
-            print(f"Erro ao salvar dados de glicemia: {e}")
+        
+        # Usa o helper de threading para executar a operação de forma assíncrona
+        async_op = AsyncOperation(self)
+        async_op.executar(
+            operacao=lambda: self.controller.service.adicionarGlicemia(data_to_save),
+            on_success=self._on_save_success,
+            on_error=self._on_save_error
+        )
 
+    def _on_save_success(self, resultado=None):
+        """Callback chamado quando os dados são salvos com sucesso"""
+        messagebox.showinfo("Sucesso", "Registro de glicemia salvo com sucesso!")
         self.controller.show_frame("FeedScreen")
+
+    def _on_save_error(self, error):
+        """Callback chamado quando ocorre erro ao salvar os dados"""
+        messagebox.showerror("Erro", f"Falha ao salvar dados de glicemia: {str(error)}")
 

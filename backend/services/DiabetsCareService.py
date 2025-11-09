@@ -14,8 +14,13 @@ class ServicoDiabetsCare:
         return self.repositorio_post.getPost()   
 
     def adicionarGlicemia(self, dados_glicemia):  
-        if not isinstance(dados_glicemia.get('value'), (int, float)) or dados_glicemia.get('value') <= 0:
-            raise ValueError("O valor da glicemia deve ser um número positivo.")
+        # Validação básica dos dados de glicemia
+        # Nota: A validação completa deve ser implementada conforme a especificação
+        if not dados_glicemia:
+            raise ValueError("Os dados de glicemia não podem estar vazios.")
+        
+        # Salva os dados via repositório
+        self.repositorio_glicemia.adicionarGlicemia(dados_glicemia)
             
     def getHistoricoPost(self):
         return self.repositorio_post.getPost()

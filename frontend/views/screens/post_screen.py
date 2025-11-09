@@ -1,5 +1,13 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
+import sys
+import os
+
+# Adiciona o diretório raiz ao path para imports
+root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.insert(0, root_dir)
+
+from frontend.utils.threading_helper import AsyncOperation
 
 class PostScreen(tk.Frame):
     def __init__(self, parent, controller):
@@ -58,15 +66,32 @@ class PostScreen(tk.Frame):
             self.post_text.config(fg="grey")
 
     def _submit_post(self):
+        """Inicia o processo de submissão de post"""
         content = self.post_text.get("1.0", "end-1c").strip()
         if content and content != "No que está pensando?".strip():
-            self.controller.DiabetsCareService.adicionarPost(content)
+            # Limpa o campo imediatamente para melhor UX
             self.post_text.delete("1.0", "end")
             self.post_text.insert("1.0", "No que está pensando?")
             self.post_text.config(fg="grey")
-            self.controller.show_frame("FeedScreen")
+            
+            # Usa o helper de threading para executar a operação de forma assíncrona
+            async_op = AsyncOperation(self)
+            async_op.executar(
+                operacao=lambda: self.controller.service.adicionarPost(content),
+                on_success=self._on_save_success,
+                on_error=self._on_save_error
+            )
         else:
-            print("Post vazio!") # Pode ser substituído por um messagebox
+            messagebox.showwarning("Aviso", "O post não pode estar vazio!")
+
+    def _on_save_success(self, resultado=None):
+        """Callback chamado quando o post é salvo com sucesso"""
+        messagebox.showinfo("Sucesso", "Post publicado com sucesso!")
+        self.controller.show_frame("FeedScreen")
+
+    def _on_save_error(self, error):
+        """Callback chamado quando ocorre erro ao salvar o post"""
+        messagebox.showerror("Erro", f"Falha ao publicar post: {str(error)}")
 
     def _cancel_post(self):
         self.post_text.delete("1.0", "end")
