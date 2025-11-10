@@ -1,3 +1,7 @@
+"""
+Tela de cadastro do aplicativo DiabetsCare.
+Implementa registro de novos usuários com dados persistidos em JSON.
+"""
 import tkinter as tk
 from tkinter import font, messagebox
 from PIL import Image, ImageTk
@@ -7,6 +11,9 @@ import sys
 # Adiciona o diretório raiz ao path para imports
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, root_dir)
+
+from frontend.utils.threading_helper import AsyncOperation
+
 
 class SignupScreen(tk.Frame):
     """Tela de cadastro do aplicativo"""
@@ -138,7 +145,7 @@ class SignupScreen(tk.Frame):
                 bg="#1E90FF", fg="white", font=("Arial", 14)).pack(pady=10)
     
     def _fazer_cadastro(self):
-        """Processa o cadastro e navega para o feed"""
+        """Processa o cadastro usando threading para não bloquear a GUI"""
         username = self.username_entry.get().strip()
         password = self.password_entry.get().strip()
         tipo = self.tipo_var.get()
@@ -147,12 +154,25 @@ class SignupScreen(tk.Frame):
             messagebox.showwarning("Aviso", "Por favor, preencha todos os campos!")
             return
         
-        # Por enquanto, aceita qualquer cadastro (pode ser implementada validação real depois)
-        # TODO: Implementar validação real de cadastro
-        messagebox.showinfo("Sucesso", f"Conta criada com sucesso! Bem-vindo, {username}!")
+        # Usa threading para registro (pode envolver escrita em arquivo)
+        async_op = AsyncOperation(self)
+        async_op.executar(
+            operacao=lambda: self.controller.service.register_user(username, password, tipo),
+            on_success=self._on_signup_success,
+            on_error=self._on_signup_error
+        )
+    
+    def _on_signup_success(self, user):
+        """Callback chamado quando o cadastro é bem-sucedido"""
+        messagebox.showinfo("Sucesso", f"Conta criada com sucesso! Bem-vindo, {user.get('username', 'Usuário')}!")
+        # Faz login automático após cadastro
+        self.controller.service.login(user.get('username'), self.password_entry.get().strip())
         self.controller.show_frame("FeedScreen")
+    
+    def _on_signup_error(self, error):
+        """Callback chamado quando ocorre erro no cadastro"""
+        messagebox.showerror("Erro", f"Falha no cadastro: {str(error)}")
     
     def _ir_para_login(self):
         """Navega para a tela de login"""
         self.controller.show_frame("LoginScreen")
-

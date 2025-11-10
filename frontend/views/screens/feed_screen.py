@@ -79,7 +79,7 @@ class FeedScreen(tk.Frame):
             # Usa o helper de threading para carregar posts de forma assíncrona
             async_op = AsyncOperation(self)
             async_op.executar(
-                operacao=lambda: self.controller.service.getPost(),
+                operacao=lambda: self.controller.service.get_all_posts(),
                 on_success=self._render_posts,
                 on_error=self._on_load_error
             )

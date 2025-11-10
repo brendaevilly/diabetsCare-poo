@@ -1,3 +1,7 @@
+"""
+Tela de login do aplicativo DiabetsCare.
+Implementa autenticação de usuários com dados persistidos em JSON.
+"""
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
@@ -7,6 +11,9 @@ import sys
 # Adiciona o diretório raiz ao path para imports
 root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.insert(0, root_dir)
+
+from frontend.utils.threading_helper import AsyncOperation
+
 
 class LoginScreen(tk.Frame):
     """Tela de login do aplicativo"""
@@ -101,7 +108,7 @@ class LoginScreen(tk.Frame):
                     fg="white", bg="#1E90FF").pack(pady=20)
     
     def _fazer_login(self):
-        """Processa o login e navega para o feed"""
+        """Processa o login usando threading para não bloquear a GUI"""
         username = self.username_entry.get().strip()
         password = self.password_entry.get().strip()
         
@@ -109,10 +116,22 @@ class LoginScreen(tk.Frame):
             messagebox.showwarning("Aviso", "Por favor, preencha todos os campos!")
             return
         
-        # Por enquanto, aceita qualquer login (pode ser implementada validação real depois)
-        # TODO: Implementar validação real de login
-        messagebox.showinfo("Sucesso", f"Bem-vindo, {username}!")
+        # Usa threading para autenticação (pode envolver leitura de arquivo)
+        async_op = AsyncOperation(self)
+        async_op.executar(
+            operacao=lambda: self.controller.service.login(username, password),
+            on_success=self._on_login_success,
+            on_error=self._on_login_error
+        )
+    
+    def _on_login_success(self, user):
+        """Callback chamado quando o login é bem-sucedido"""
+        messagebox.showinfo("Sucesso", f"Bem-vindo, {user.get('username', 'Usuário')}!")
         self.controller.show_frame("FeedScreen")
+    
+    def _on_login_error(self, error):
+        """Callback chamado quando ocorre erro no login"""
+        messagebox.showerror("Erro", f"Falha no login: {str(error)}")
     
     def _ir_para_cadastro(self):
         """Navega para a tela de cadastro"""

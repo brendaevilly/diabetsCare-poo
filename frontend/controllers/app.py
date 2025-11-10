@@ -1,3 +1,7 @@
+"""
+Controller principal do aplicativo DiabetsCare.
+Gerencia a navegação entre telas e coordena a comunicação entre GUI e Backend.
+"""
 import tkinter as tk
 import sys
 import os
@@ -15,13 +19,20 @@ from frontend.views.screens.glycemia_screen import GlycemiaScreen
 from frontend.views.screens.dashboard_screen import DashboardScreen
 from frontend.views.screens.user_data_screen import UserDataScreen
 
-# Imports do backend (services)
-from backend.services.diabetes_service import Servico_Diabets_Care, RepositorioPost, RepositorioGlicemia
+# Imports do backend (services e repositories)
+from backend.services.diabetes_service import DiabetsCareService
+from backend.repositories.file_repository import FileRepository
+
 
 class App(tk.Tk):
+    """
+    Classe principal do aplicativo.
+    Gerencia a janela principal, navegação entre telas e inicialização do backend.
+    """
+    
     def __init__(self):
         super().__init__()
-        self.title("Aplicativo de Posts e Glicemia")
+        self.title("DiabetsCare")
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         self.geometry(f"{screen_width}x{screen_height}")
@@ -35,13 +46,15 @@ class App(tk.Tk):
 
         self.frames = {}
 
-        # Inicialização do Backend (Service)
-        # Nota: O repositório ainda está em memória, mas a estrutura permite
-        # fácil migração para FileRepository quando implementado
-        repo_post = RepositorioPost()
-        repo_glicemia = RepositorioGlicemia()
-        self.DiabetsCareService = Servico_Diabets_Care(repo_post, repo_glicemia)
-        self.service = self.DiabetsCareService  # Alias para compatibilidade com nova arquitetura
+        # Inicialização do Backend (Arquitetura em Camadas)
+        # 1. Cria o Repositório (persistência em arquivos)
+        self.repository = FileRepository()
+        
+        # 2. Cria o Serviço (lógica de negócio)
+        self.service = DiabetsCareService(self.repository)
+        
+        # Alias para compatibilidade com código existente
+        self.DiabetsCareService = self.service
 
         # Adiciona as telas
         for F in (LoginScreen, SignupScreen, FeedScreen, PostScreen, GlycemiaScreen, 
@@ -55,19 +68,36 @@ class App(tk.Tk):
         self.show_frame("LoginScreen") 
 
     def show_frame(self, page_name):
-        """Mostra um frame para a página dada"""
+        """
+        Mostra um frame para a página dada.
+        Atualiza o feed se necessário usando threading para não bloquear a GUI.
+        
+        Args:
+            page_name: Nome da tela a ser exibida
+        """
         frame = self.frames[page_name]
+        
         if page_name == "FeedScreen":
             # A atualização do feed será feita com threading na própria tela
             # para não bloquear a GUI durante a leitura de dados
             frame.update_feed()  
+        
         frame.tkraise()
 
     def adicionar_post(self, conteudo):
+        """
+        Adiciona um novo post através do serviço.
+        A operação de salvamento deve ser feita com threading na tela PostScreen.
+        
+        Args:
+            conteudo: Conteúdo do post (string)
+        """
         try:
-            self.DiabetsCareService.adicionarPost(conteudo)  
+            self.service.add_post(conteudo)  
         except Exception as e:
             print(f"Erro ao adicionar post: {e}")
+            raise
+
 
 if __name__ == "__main__":
     app = App()
