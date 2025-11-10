@@ -9,6 +9,7 @@ sys.path.insert(0, root_dir)
 
 from frontend.utils.threading_helper import AsyncOperation
 
+
 class FeedScreen(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)

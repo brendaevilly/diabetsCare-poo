@@ -36,9 +36,10 @@ class ThreadingHelper:
                     widget.after(0, lambda: on_success(resultado))
             except Exception as e:
                 if on_error:
-                    widget.after(0, lambda: on_error(e))
+                    widget.after(0, lambda err=e: on_error(err))
                 else:
-                    widget.after(0, lambda: ThreadingHelper._erro_padrao(e))
+                    widget.after(0, lambda err=e: ThreadingHelper._erro_padrao(err))
+
         
         thread = threading.Thread(target=_executar)
         thread.daemon = True

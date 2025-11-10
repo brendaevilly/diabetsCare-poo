@@ -16,7 +16,7 @@ from frontend.views.screens.dashboard_screen import DashboardScreen
 from frontend.views.screens.user_data_screen import UserDataScreen
 
 # Imports do backend (services)
-from backend.services.DiabetsCareService import Servico_Diabets_Care
+from backend.services.diabetes_service import Servico_Diabets_Care, RepositorioPost, RepositorioGlicemia
 
 class App(tk.Tk):
     def __init__(self):
@@ -38,8 +38,10 @@ class App(tk.Tk):
         # Inicialização do Backend (Service)
         # Nota: O repositório ainda está em memória, mas a estrutura permite
         # fácil migração para FileRepository quando implementado
-        self.DiabetsCareService = Servico_Diabets_Care
-        self.service = Servico_Diabets_Care  # Alias para compatibilidade com nova arquitetura
+        repo_post = RepositorioPost()
+        repo_glicemia = RepositorioGlicemia()
+        self.DiabetsCareService = Servico_Diabets_Care(repo_post, repo_glicemia)
+        self.service = self.DiabetsCareService  # Alias para compatibilidade com nova arquitetura
 
         # Adiciona as telas
         for F in (LoginScreen, SignupScreen, FeedScreen, PostScreen, GlycemiaScreen, 
