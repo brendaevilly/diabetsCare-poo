@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: diabetscare_postgres
+    environment:
+      POSTGRES_USER: diabetscare_user
+      POSTGRES_PASSWORD: diabetscare_pass
+      POSTGRES_DB: diabetscare_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U diabetscare_user -d diabetscare_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - diabetscare_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: diabetscare_backend
+    environment:
+      DATABASE_URL: postgresql://diabetscare_user:diabetscare_pass@postgres:5432/diabetscare_db
+      FLASK_ENV: development
+      FLASK_DEBUG: "1"
+      FLASK_APP: app.py
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - diabetscare_network
+    command: python -m flask run --host=0.0.0.0 --port=5000
+
+volumes:
+  postgres_data:
+
+networks:
+  diabetscare_network:
+    driver: bridge
+
