@@ -115,7 +115,7 @@ class LoginScreen(tk.Frame):
         if not username or not password:
             messagebox.showwarning("Aviso", "Por favor, preencha todos os campos!")
             return
-        
+            
         # Usa threading para autenticação (pode envolver leitura de arquivo)
         async_op = AsyncOperation(self)
         async_op.executar(

@@ -21,7 +21,6 @@ from frontend.views.screens.user_data_screen import UserDataScreen
 
 # Imports do backend (services e repositories)
 from backend.services.diabetes_service import DiabetsCareService
-from backend.repositories.file_repository import FileRepository
 
 
 class App(tk.Tk):
@@ -48,10 +47,9 @@ class App(tk.Tk):
 
         # Inicialização do Backend (Arquitetura em Camadas)
         # 1. Cria o Repositório (persistência em arquivos)
-        self.repository = FileRepository()
         
         # 2. Cria o Serviço (lógica de negócio)
-        self.service = DiabetsCareService(self.repository)
+        self.service = DiabetsCareService()
         
         # Alias para compatibilidade com código existente
         self.DiabetsCareService = self.service
