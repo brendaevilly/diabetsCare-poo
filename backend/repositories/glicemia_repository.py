@@ -2,43 +2,34 @@ from config import db
 from models.glicemia import Glicemia
 from datetime import datetime
 
-class GlycemiaRepository:
+
+class GlicemiaRepository:
+    """Repositório para registros de glicemia usando a instância global `db`.
+
+    Métodos estáticos para CRUD básico alinhados com os serviços.
+    """
+
     @staticmethod
-    def create_record(user_id, value, notes=None):
-        new_record = Glicemia(user_id=user_id, value=value, notes=notes)
-        db.session.add(new_record)
+    def create(novo: Glicemia):
+        db.session.add(novo)
         db.session.commit()
-        return new_record
+        return novo
 
     @staticmethod
-    def get_record_by_id(record_id, user_id):
-        return db.session.execute(
-            db.select(Glicemia).filter_by(id=record_id, user_id=user_id)
-        ).scalar_one_or_none()
+    def get_by_id(glicemia_id: int):
+        return db.session.execute(db.select(Glicemia).filter_by(id=glicemia_id)).scalar_one_or_none()
 
     @staticmethod
-    def get_all_records_by_user(user_id):
-        return db.session.execute(
-            db.select(Glicemia).filter_by(user_id=user_id).order_by(Glicemia.timestamp.desc())
-        ).scalars().all()
+    def list_by_user(usuario_id: int):
+        return db.session.execute(db.select(Glicemia).filter_by(usuario_id=usuario_id)).scalars().all()
 
     @staticmethod
-    def update_record(record_id, user_id, value=None, notes=None):
-        record = GlycemiaRepository.get_record_by_id(record_id, user_id)
-        if record:
-            if value is not None:
-                record.value = value
-            if notes is not None:
-                record.notes = notes
-            db.session.commit()
-            return record
-        return None
+    def delete(record: Glicemia):
+        db.session.delete(record)
+        db.session.commit()
+        return True
 
     @staticmethod
-    def delete_record(record_id, user_id):
-        record = GlycemiaRepository.get_record_by_id(record_id, user_id)
-        if record:
-            db.session.delete(record)
-            db.session.commit()
-            return True
-        return False
+    def update(record: Glicemia):
+        db.session.commit()
+        return record

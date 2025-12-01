@@ -12,3 +12,6 @@ class PostService:
 
     def list_all(self):
         return self.repo.list_all()
+
+    def list_by_user(self, usuario_id):
+        return self.repo.list_by_user(usuario_id)

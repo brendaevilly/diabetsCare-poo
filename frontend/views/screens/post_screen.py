@@ -77,7 +77,7 @@ class PostScreen(tk.Frame):
             # Usa o helper de threading para executar a operação de forma assíncrona
             async_op = AsyncOperation(self)
             async_op.executar(
-                operacao=lambda: self.controller.service.adicionarPost(content),
+                operacao=lambda: self.controller.service.add_post(content),
                 on_success=self._on_save_success,
                 on_error=self._on_save_error
             )
@@ -86,7 +86,11 @@ class PostScreen(tk.Frame):
 
     def _on_save_success(self, resultado=None):
         """Callback chamado quando o post é salvo com sucesso"""
-        messagebox.showinfo("Sucesso", "Post publicado com sucesso!")
+        # show user if API returned the created post
+        if resultado and isinstance(resultado, dict) and resultado.get('user'):
+            messagebox.showinfo("Sucesso", f"Post publicado por {resultado.get('user')}!")
+        else:
+            messagebox.showinfo("Sucesso", "Post publicado com sucesso!")
         self.controller.show_frame("FeedScreen")
 
     def _on_save_error(self, error):

@@ -8,6 +8,7 @@ root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.pa
 sys.path.insert(0, root_dir)
 
 from frontend.utils.threading_helper import AsyncOperation
+from datetime import datetime
 
 class GlycemiaScreen(tk.Frame):
     def __init__(self, parent, controller):
@@ -132,6 +133,8 @@ class GlycemiaScreen(tk.Frame):
     def _save_glycemia_data(self):
         """Inicia o processo de salvamento de dados de glicemia"""
         data_to_save = {
+            # include today's date if the user didn't select a date
+            "data": datetime.utcnow().strftime('%Y-%m-%d'),
             "jejum": int(self.slider_data[0]["slider"].get()),
             "pos_prandial": int(self.slider_data[1]["slider"].get()),
             "dormir": int(self.slider_data[2]["slider"].get()),
@@ -148,7 +151,11 @@ class GlycemiaScreen(tk.Frame):
 
     def _on_save_success(self, resultado=None):
         """Callback chamado quando os dados são salvos com sucesso"""
-        messagebox.showinfo("Sucesso", "Registro de glicemia salvo com sucesso!")
+        # if backend returned created record with 'user', show it
+        if resultado and isinstance(resultado, dict) and resultado.get('user'):
+            messagebox.showinfo("Sucesso", f"Registro de glicemia salvo para {resultado.get('user')}!")
+        else:
+            messagebox.showinfo("Sucesso", "Registro de glicemia salvo com sucesso!")
         self.controller.show_frame("FeedScreen")
 
     def _on_save_error(self, error):

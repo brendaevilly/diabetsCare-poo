@@ -164,9 +164,17 @@ class SignupScreen(tk.Frame):
     
     def _on_signup_success(self, user):
         """Callback chamado quando o cadastro é bem-sucedido"""
+        # if backend returned an error payload (defensive) show it
+        if isinstance(user, dict) and user.get('error'):
+            messagebox.showerror("Erro", f"Falha no cadastro: {user.get('error')}")
+            return
+
         messagebox.showinfo("Sucesso", f"Conta criada com sucesso! Bem-vindo, {user.get('username', 'Usuário')}!")
-        # Faz login automático após cadastro
-        self.controller.service.login(user.get('username'), self.password_entry.get().strip())
+        # Faz login automático após cadastro e grava usuário logado
+        login_result = self.controller.service.login(user.get('username'), self.password_entry.get().strip())
+        if isinstance(login_result, dict) and login_result.get('username'):
+            # service.login returns user dict when successful
+            self.controller.set_usuario_logado(login_result.get('username'))
         self.controller.show_frame("FeedScreen")
     
     def _on_signup_error(self, error):

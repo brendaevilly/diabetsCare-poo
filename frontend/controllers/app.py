@@ -18,6 +18,7 @@ from frontend.views.screens.feed_screen import FeedScreen
 from frontend.views.screens.glycemia_screen import GlycemiaScreen
 from frontend.views.screens.dashboard_screen import DashboardScreen
 from frontend.views.screens.user_data_screen import UserDataScreen
+from frontend.views.screens.historico_screen import HistoricoScreen
 
 # Imports do backend (services e repositories)
 from backend.services.diabetes_service import DiabetsCareService
@@ -53,10 +54,12 @@ class App(tk.Tk):
         
         # Alias para compatibilidade com código existente
         self.DiabetsCareService = self.service
+        # logged user
+        self.usuario_logado = None
 
         # Adiciona as telas
         for F in (LoginScreen, SignupScreen, FeedScreen, PostScreen, GlycemiaScreen, 
-                  DashboardScreen, UserDataScreen):
+                  DashboardScreen, UserDataScreen,HistoricoScreen):
             page_name = F.__name__
             frame = F(parent=container, controller=self)
             self.frames[page_name] = frame
@@ -64,6 +67,14 @@ class App(tk.Tk):
 
         # Começa na tela de login
         self.show_frame("LoginScreen") 
+    
+    def set_usuario_logado(self, nome_usuario):
+        self.usuario_logado = nome_usuario
+        # update title to show user
+        try:
+            self.title(f"DiabetsCare — {nome_usuario}")
+        except Exception:
+            pass
 
     def show_frame(self, page_name):
         """
@@ -79,6 +90,12 @@ class App(tk.Tk):
             # A atualização do feed será feita com threading na própria tela
             # para não bloquear a GUI durante a leitura de dados
             frame.update_feed()  
+        elif page_name == "HistoricoScreen":
+            # update historico screen data when shown
+            try:
+                frame.atualizar_dados()
+            except Exception:
+                pass
         
         frame.tkraise()
 
@@ -94,6 +111,14 @@ class App(tk.Tk):
             self.service.add_post(conteudo)  
         except Exception as e:
             print(f"Erro ao adicionar post: {e}")
+            raise
+    
+    def salvar_registro_glicemia(self, dados):
+        try:
+            self.service.save_glycemia_record(dados)
+        except Exception as e:
+            print(f"Erro ao salvar registro de glicemia: {e}")
+
             raise
 
 

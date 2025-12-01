@@ -1,4 +1,5 @@
 {
-    "python-envs.defaultEnvManager": "ms-python.python:system",
-    "python-envs.pythonProjects": []
+    "workbench.colorTheme": "Visual Studio 2017 Light - C++",
+    "editor.formatOnSave": true,
+    "github.copilot.nextEditSuggestions.enabled": true
 }

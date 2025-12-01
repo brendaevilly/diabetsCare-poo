@@ -116,7 +116,6 @@ class LoginScreen(tk.Frame):
             messagebox.showwarning("Aviso", "Por favor, preencha todos os campos!")
             return
             
-        # Usa threading para autenticação (pode envolver leitura de arquivo)
         async_op = AsyncOperation(self)
         async_op.executar(
             operacao=lambda: self.controller.service.login(username, password),
@@ -126,7 +125,14 @@ class LoginScreen(tk.Frame):
     
     def _on_login_success(self, user):
         """Callback chamado quando o login é bem-sucedido"""
-        messagebox.showinfo("Sucesso", f"Bem-vindo, {user.get('username', 'Usuário')}!")
+        if isinstance(user, dict) and user.get('error'):
+            messagebox.showerror("Erro", f"Falha no login: {user.get('error')}")
+            return
+
+        username = user.get('username') if isinstance(user, dict) else None
+        if username:
+            self.controller.set_usuario_logado(username)
+        messagebox.showinfo("Sucesso", f"Bem-vindo, {username or user.get('username', 'Usuário')}!")
         self.controller.show_frame("FeedScreen")
     
     def _on_login_error(self, error):
