@@ -4,7 +4,7 @@ from services.post_sevice import PostService
 
 post_controller = Blueprint("post", __name__)
 
-@post_controller.post("/")
+@post_controller.route("/", methods=["POST"])
 @jwt_required()
 def create_post():
     user_id = get_jwt_identity()

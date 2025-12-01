@@ -3,7 +3,7 @@ from services.auth_service import AuthService
 
 auth_controller = Blueprint("auth", __name__)
 
-@auth_controller.route("/auth/signup_screen", methods=["POST"])
+@auth_controller.route("/register", methods=["POST"])
 def register():
     data = request.get_json()
     if not data:
@@ -19,7 +19,7 @@ def register():
     return jsonify({"message": "Usuário criado com sucesso"}), 201
 
 
-@auth_controller.route("/auth/login_screen", methods=["POST"])
+@auth_controller.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
     if not data:

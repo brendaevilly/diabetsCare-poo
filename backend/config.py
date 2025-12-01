@@ -10,7 +10,7 @@ DATABASE_URL = os.getenv(
     "postgresql://diabetscare_user:diabetscare_pass@postgres:5432/diabetscare_db"
 )
 
-SECRET_KEY = os.getenv("SECRET_KEY", "mude_para_uma_chave_secreta")
+SECRET_KEY = os.getenv("SECRET_KEY", "chavesecreta")
 JWT_SECRET = os.getenv("JWT_SECRET", SECRET_KEY)
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_EXP_SECONDS = int(os.getenv("JWT_EXP_SECONDS", 60 * 60 * 24))  # 1 dia padrão

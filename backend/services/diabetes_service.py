@@ -7,19 +7,19 @@ class DiabetsCareService:
     
     # autenticacao
 
-    def register_user(self, username, password, tipo="Comum"):
+    def register_user(self, username, password, tipo):
         payload = {
             "username": username,
             "password": password,
             "tipo": tipo
         }
 
-        response = requests.post(f"{self.base_url}/auth/signup_screen", json=payload)
+        response = requests.post(f"{self.base_url}/auth/register", json=payload)
         return response.json()
     
     def login(self, username, password):
         payload = { "username": username, "password": password }
-        r = requests.post(f"{self.base_url}/auth/login_screen", json=payload)
+        r = requests.post(f"{self.base_url}/auth/login", json=payload)
 
         if r.status_code == 200:
             data = r.json()

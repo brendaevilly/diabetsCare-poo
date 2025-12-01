@@ -4,7 +4,7 @@ from services.glicemia_service import GlicemiaService
 
 glicemia_controller = Blueprint("glicemia", __name__)
 
-@glicemia_controller.post("/")
+@glicemia_controller.route("/", methods=["POST"])
 @jwt_required()
 def create():
     user_id = get_jwt_identity()
@@ -21,28 +21,44 @@ def create():
 
     return jsonify({"id": record.id}), 201
 
-
-@glicemia_controller.get("/")
+@glicemia_controller.route("/<int:id>", methods=["GET"])
 @jwt_required()
-def list_all():
-    user_id = get_jwt_identity()
-
-    records = GlicemiaService.list_by_user(user_id)
-
-    return jsonify([
-        {
-            "id": r.id,
-            "data": str(r.data),
-            "jejum": r.jejum,
-            "pos_prandial": r.pos_prandial,
-            "dormir": r.dormir,
-            "observacoes": r.observacoes
-        } for r in records
-    ])
+def get_by_id(id):
+    record = GlicemiaService.get_by_id(id)
+    if not record:
+        return jsonify({"error": "Registro não encontrado"}), 404
+    
+    return jsonify({
+        "id": record.id,
+        "data": str(record.data),
+        "jejum": record.jejum,
+        "pos_prandial": record.pos_prandial,
+        "dormir": record.dormir,
+        "observacoes": record.observacoes
+    })
 
 
-@glicemia_controller.delete("/<int:id>")
+@glicemia_controller.route("/<int:id>", methods=["PUT"])
+@jwt_required()
+def update(id):
+    data = request.json
+    record = GlicemiaService.update(
+        glicemia_id=id,
+        data=data.get("data"),
+        jejum=data.get("jejum"),
+        pos_prandial=data.get("pos_prandial"),
+        dormir=data.get("dormir"),
+        observacoes=data.get("observacoes")
+    )
+    if not record:
+        return jsonify({"error": "Registro não encontrado"}), 404
+    
+    return jsonify({"message": "Registro atualizado com sucesso"}), 200
+
+
+@glicemia_controller.route("/<int:id>", methods=["DELETE"])
 @jwt_required()
 def delete(id):
-    GlicemiaService.delete(id)
-    return jsonify({"message": "Registro deletado"})
+    if not GlicemiaService.delete(id):
+        return jsonify({"error": "Registro não encontrado"}), 404
+    return jsonify({"message": "Registro deletado"}), 200
